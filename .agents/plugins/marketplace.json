@@ -1,0 +1,11 @@
+{
+  "name": "ai-delivery-kit",
+  "plugins": [
+    {
+      "name": "ai-delivery-kit",
+      "source": { "source": "local", "path": "./" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    }
+  ]
+}

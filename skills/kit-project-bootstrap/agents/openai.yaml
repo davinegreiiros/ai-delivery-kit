@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bootstrap do projeto"
+  short_description: "Prepare o repositório para o kit"
+  default_prompt: "Use $kit-project-bootstrap para preparar este repositório. Não faça commit."

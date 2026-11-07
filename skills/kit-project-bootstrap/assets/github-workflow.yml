@@ -1,0 +1,27 @@
+name: kit-specs
+
+on:
+  pull_request:
+    paths:
+      - "specs/**"
+
+permissions:
+  contents: read
+
+jobs:
+  check-specs:
+    runs-on: ubuntu-latest
+    # Comece informativo; troque para false quando o time confiar no gate.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: davinegreiiros/ai-delivery-kit
+          ref: v1.0.0
+          path: .ai-delivery-kit
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar rastreabilidade das specs
+        run: python .ai-delivery-kit/skills/kit-sdd/scripts/check_specs.py --all specs

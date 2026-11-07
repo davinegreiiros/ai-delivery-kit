@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD"
+  short_description: "Spec, impacto, plano, testes e revisão"
+  default_prompt: "Use $kit-sdd para conduzir esta mudança da spec à verificação."

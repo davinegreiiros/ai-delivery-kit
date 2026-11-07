@@ -1,0 +1,4 @@
+interface:
+  display_name: "Issue intake"
+  short_description: "Transforme um card em spec"
+  default_prompt: "Use $kit-issue-intake para trazer este issue para uma spec."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revisão de segurança"
+  short_description: "Encontre vulnerabilidades no diff"
+  default_prompt: "Use $kit-security-review para revisar a segurança desta mudança."

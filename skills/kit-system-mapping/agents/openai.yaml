@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mapeamento de sistema"
+  short_description: "Documente o sistema existente"
+  default_prompt: "Use $kit-system-mapping para documentar este sistema."

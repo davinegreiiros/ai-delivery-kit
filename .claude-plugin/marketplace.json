@@ -1,0 +1,19 @@
+{
+  "name": "ai-delivery-kit",
+  "owner": {
+    "name": "Davi Negreiros"
+  },
+  "metadata": {
+    "description": "Marketplace do ai-delivery-kit"
+  },
+  "plugins": [
+    {
+      "name": "ai-delivery-kit",
+      "source": "./",
+      "description": "Spec-Driven Development com agentes de IA",
+      "version": "1.0.0",
+      "category": "productivity",
+      "tags": ["sdd", "specs", "code-review", "debugging", "security"]
+    }
+  ]
+}

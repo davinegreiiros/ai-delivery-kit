@@ -1,0 +1,4 @@
+interface:
+  display_name: "Contract First"
+  short_description: "Contrato aprovado antes do código"
+  default_prompt: "Use $kit-contract-first para definir este contrato."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review"
+  short_description: "Revise o diff contra a spec"
+  default_prompt: "Use $kit-code-review para revisar o diff atual."

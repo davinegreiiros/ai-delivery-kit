@@ -1,0 +1,6 @@
+{
+  "test_command": "<comando de testes do projeto>",
+  "coverage_regex": "",
+  "coverage_tolerance": 0.5,
+  "timeout_seconds": 1800
+}

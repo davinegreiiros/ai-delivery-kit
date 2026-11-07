@@ -1,0 +1,4 @@
+interface:
+  display_name: "Change Impact"
+  short_description: "Mapeie o que a mudança afeta"
+  default_prompt: "Use $kit-change-impact para mapear o impacto desta mudança."

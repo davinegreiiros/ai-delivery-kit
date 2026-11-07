@@ -1,0 +1,86 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: testes (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.12"]
+        include:
+          - os: ubuntu-latest
+            python: "3.9"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Validar estrutura do kit
+        run: python scripts/validate_kit.py
+      - name: Testes unitários
+        run: python -m unittest discover -s tests -v
+
+  install-unix:
+    name: instalador bash (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar, reinstalar e desinstalar em HOME temporário
+        run: |
+          export HOME="$(mktemp -d)"
+          ./install.sh --client all
+          ./install.sh --client all
+          test "$(ls "$HOME/.claude/skills" | wc -l)" -eq "$(ls skills | wc -l)"
+          test -L "$HOME/.agents/skills/kit-sdd"
+          mkdir "$HOME/proj"
+          ./install.sh --project "$HOME/proj"
+          test -f "$HOME/proj/.agents/skills/kit-sdd/SKILL.md"
+          ./install.sh --project "$HOME/proj" --uninstall
+          ./install.sh --uninstall
+          test -z "$(ls "$HOME/.claude/skills")"
+
+  install-windows:
+    name: instalador PowerShell (${{ matrix.shell }})
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        shell: [pwsh, powershell]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar, reinstalar e desinstalar em perfil temporário
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tmp = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
+          New-Item -ItemType Directory -Path $tmp | Out-Null
+          $exe = if ('${{ matrix.shell }}' -eq 'pwsh') { 'pwsh' } else { 'powershell' }
+          $env:USERPROFILE = $tmp
+          & $exe -NoProfile -File .\install.ps1 -Client all
+          if ($LASTEXITCODE) { throw 'install falhou' }
+          & $exe -NoProfile -File .\install.ps1 -Client all
+          if ($LASTEXITCODE) { throw 'reinstall falhou' }
+          $expected = (Get-ChildItem -Directory skills).Count
+          $got = (Get-ChildItem (Join-Path $tmp '.claude\skills')).Count
+          if ($got -ne $expected) { throw "esperado $expected links, obtido $got" }
+          if (-not (Test-Path (Join-Path $tmp '.agents\skills\kit-sdd\SKILL.md'))) { throw 'junction quebrada' }
+          $proj = Join-Path $tmp 'proj'; New-Item -ItemType Directory -Path $proj | Out-Null
+          & $exe -NoProfile -File .\install.ps1 -Project $proj
+          if (-not (Test-Path (Join-Path $proj '.agents\skills\kit-sdd\SKILL.md'))) { throw 'cópia falhou' }
+          & $exe -NoProfile -File .\install.ps1 -Uninstall
+          if ((Get-ChildItem (Join-Path $tmp '.claude\skills')).Count -ne 0) { throw 'uninstall falhou' }
+          if (-not (Test-Path (Join-Path (Get-Location) 'skills\kit-sdd\SKILL.md'))) { throw 'uninstall apagou a origem' }

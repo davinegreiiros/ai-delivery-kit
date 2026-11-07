@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Guard"
+  short_description: "Testes e cobertura antes e depois"
+  default_prompt: "Use $kit-test-guard para medir o baseline de testes."

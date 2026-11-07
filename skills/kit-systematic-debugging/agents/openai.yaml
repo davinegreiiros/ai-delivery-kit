@@ -1,0 +1,4 @@
+interface:
+  display_name: "Debugging sistemático"
+  short_description: "Causa raiz antes da correção"
+  default_prompt: "Use $kit-systematic-debugging para investigar este problema."
