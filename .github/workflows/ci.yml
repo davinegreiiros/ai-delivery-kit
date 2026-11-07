@@ -85,3 +85,93 @@ jobs:
           & $exe -NoProfile -File .\install.ps1 -Uninstall
           if ((Get-ChildItem (Join-Path $tmp '.claude\skills')).Count -ne 0) { throw 'uninstall falhou' }
           if (-not (Test-Path (Join-Path (Get-Location) 'skills\kit-sdd\SKILL.md'))) { throw 'uninstall apagou a origem' }
+
+  # Roda os comandos exatamente como estão no README (modo remoto: clona em ~/.ai-delivery-kit).
+  readme-unix:
+    name: comandos do README (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Fonte local do kit (versão deste commit)
+        run: |
+          SRC="$RUNNER_TEMP/kit-src"
+          git clone -q "$GITHUB_WORKSPACE" "$SRC"
+          git -C "$SRC" checkout -q -B main
+          echo "AI_KIT_SRC=$SRC" >> "$GITHUB_ENV"
+      - name: curl | bash, atualizar, escolher cliente e remover
+        run: |
+          export HOME="$(mktemp -d)" AI_KIT_REPO="$AI_KIT_SRC"
+          cd "$HOME"
+          cat "$GITHUB_WORKSPACE/install.sh" | bash
+          test "$(readlink "$HOME/.claude/skills/kit-sdd")" = "$HOME/.ai-delivery-kit/skills/kit-sdd"
+          test -f "$HOME/.agents/skills/kit-sdd/SKILL.md"
+          cat "$GITHUB_WORKSPACE/install.sh" | bash
+          cat "$GITHUB_WORKSPACE/install.sh" | bash -s -- --client agents
+          "$HOME/.ai-delivery-kit/install.sh" --uninstall
+          test -z "$(ls "$HOME/.claude/skills")"
+          test -z "$(ls "$HOME/.agents/skills")"
+      - name: Comando real do README pela internet
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          export HOME="$(mktemp -d)"
+          cd "$HOME"
+          curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash
+          test -f "$HOME/.claude/skills/kit-sdd/SKILL.md"
+          test -f "$HOME/.agents/skills/kit-sdd/SKILL.md"
+
+  readme-windows:
+    name: comandos do README (${{ matrix.shell }})
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        shell: [pwsh, powershell]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Fonte local do kit (versão deste commit)
+        shell: pwsh
+        run: |
+          $src = Join-Path $env:RUNNER_TEMP 'kit-src'
+          git clone -q $env:GITHUB_WORKSPACE $src
+          git -C $src checkout -q -B main
+          "AI_KIT_SRC=$src" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: irm | iex, escolher cliente e remover
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = if ('${{ matrix.shell }}' -eq 'pwsh') { 'pwsh' } else { 'powershell' }
+          $tmp = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
+          New-Item -ItemType Directory -Path $tmp | Out-Null
+          $env:USERPROFILE = $tmp
+          $env:AI_KIT_REPO = $env:AI_KIT_SRC
+          $script = Join-Path $env:GITHUB_WORKSPACE 'install.ps1'
+          Set-Location $tmp
+          # Get-Content -Raw | iex equivale a irm <url> | iex, sem depender do cache do GitHub.
+          & $exe -NoProfile -Command "Get-Content -Raw '$script' | iex"
+          if ($LASTEXITCODE) { throw 'irm | iex falhou' }
+          if (-not (Test-Path (Join-Path $tmp '.claude\skills\kit-sdd\SKILL.md'))) { throw 'claude sem skills' }
+          if (-not (Test-Path (Join-Path $tmp '.agents\skills\kit-sdd\SKILL.md'))) { throw 'agents sem skills' }
+          & $exe -NoProfile -Command "Get-Content -Raw '$script' | iex"
+          if ($LASTEXITCODE) { throw 'atualizar falhou' }
+          & $exe -NoProfile -Command "& ([scriptblock]::Create((Get-Content -Raw '$script'))) -Client agents"
+          if ($LASTEXITCODE) { throw '-Client agents falhou' }
+          & $exe -NoProfile -Command "& ([scriptblock]::Create((Get-Content -Raw '$script'))) -Uninstall"
+          if ($LASTEXITCODE) { throw '-Uninstall falhou' }
+          if ((Get-ChildItem (Join-Path $tmp '.claude\skills')).Count -ne 0) { throw 'uninstall deixou links' }
+          if (-not (Test-Path (Join-Path $tmp '.ai-delivery-kit\skills\kit-sdd\SKILL.md'))) { throw 'uninstall apagou o clone' }
+      - name: Comando real do README pela internet
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = if ('${{ matrix.shell }}' -eq 'pwsh') { 'pwsh' } else { 'powershell' }
+          $tmp = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid())
+          New-Item -ItemType Directory -Path $tmp | Out-Null
+          $env:USERPROFILE = $tmp
+          Set-Location $tmp
+          & $exe -NoProfile -Command "irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1 | iex"
+          if ($LASTEXITCODE) { throw 'comando do README falhou' }
+          if (-not (Test-Path (Join-Path $tmp '.claude\skills\kit-sdd\SKILL.md'))) { throw 'claude sem skills' }

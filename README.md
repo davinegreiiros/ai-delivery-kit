@@ -38,31 +38,42 @@ Packs de stack (Flutter, Node.js/TypeScript, Python) ajudam o bootstrap a preenc
 
 ### Rápida (todos os clientes de uma vez)
 
-macOS / Linux:
+Pré-requisito: **Git** instalado. Python 3.9+ só é necessário para os gates automáticos.
+
+**macOS e Linux** (Terminal; no Windows também funciona dentro do WSL):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash
 ```
 
-Windows (PowerShell):
+**Windows** (PowerShell 5.1 ou 7+, sem precisar de administrador):
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1))) -Client all
+irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1 | iex
 ```
 
-O instalador clona o kit em `~/.ai-delivery-kit` e cria links em:
+O instalador clona o kit em `~/.ai-delivery-kit` (`%USERPROFILE%\.ai-delivery-kit` no Windows) e
+cria links (junctions no Windows) em:
 
 | Destino | Lido por |
 |---|---|
 | `~/.claude/skills` | Claude Code |
 | `~/.agents/skills` | Codex, Gemini CLI/Antigravity, GitHub Copilot, Cursor |
 
-Atualizar: rode o mesmo comando de novo (ou `install.sh --update`). Remover: `--uninstall`
-(`-Uninstall` no Windows) — só apaga links que apontam para o kit.
+### Atualizar, escolher clientes e remover
 
-Escolha clientes com `--client claude` ou `--client agents` (aliases: `codex`, `gemini`, `copilot`,
-`cursor`). Copilot e Cursor também leem `~/.claude/skills`; se usar só eles, prefira
-`--client agents` para não ver as skills duplicadas.
+| Ação | macOS / Linux | Windows (PowerShell) |
+|---|---|---|
+| Atualizar | rode o comando de instalação de novo | rode o comando de instalação de novo |
+| Só Claude Code | `curl -fsSL <url>/install.sh \| bash -s -- --client claude` | `& ([scriptblock]::Create((irm <url>/install.ps1))) -Client claude` |
+| Só Codex/Gemini/Copilot/Cursor | `curl -fsSL <url>/install.sh \| bash -s -- --client agents` | `& ([scriptblock]::Create((irm <url>/install.ps1))) -Client agents` |
+| Remover | `~/.ai-delivery-kit/install.sh --uninstall` | `& ([scriptblock]::Create((irm <url>/install.ps1))) -Uninstall` |
+
+`<url>` = `https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main`. Remover só apaga
+os links que apontam para o kit; depois, se quiser, apague a pasta `.ai-delivery-kit`.
+
+Copilot e Cursor também leem `~/.claude/skills`; se usar só eles, instale com `agents` para não ver
+as skills duplicadas.
 
 ### Por cliente (plugin/extensão nativos)
 
@@ -75,8 +86,16 @@ Escolha clientes com `--client claude` ou `--client agents` (aliases: `codex`, `
 
 ### No projeto (para o time inteiro, sem instalar nada)
 
+macOS / Linux:
+
 ```bash
 ~/.ai-delivery-kit/install.sh --project /caminho/do/projeto
+```
+
+Windows:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1))) -Project C:\caminho\do\projeto
 ```
 
 Copia as skills para `.claude/skills/` e `.agents/skills/` do projeto. Faça commit dessas pastas e
@@ -98,6 +117,9 @@ qualquer pessoa que clonar o repositório já terá as skills em todos os client
 Mudanças triviais usam o **modo rápido** (só `tasks.md`), sem burocracia.
 
 ### Gates automáticos
+
+O agente roda estes scripts sozinho; os comandos abaixo servem para rodar à mão ou no CI.
+No Windows, troque `python3` por `python` (ou `py`) e `~/` por `$HOME\`.
 
 ```bash
 # rastreabilidade: spec aprovada, CA-n com teste no plano e evidência no fim
