@@ -19,6 +19,8 @@ Este repositório **é** o kit (skills no padrão Agent Skills), não um projeto
 
 ## Regras
 - Scripts em Python 3.9+ somente com biblioteca padrão; bash compatível com 3.2 (macOS).
+- `install.ps1` em ASCII puro, sem BOM: o BOM quebra `irm | iex`, e sem BOM o PowerShell 5.1
+  lê acentos errado. O `validate_kit.py` verifica isso.
 - `SKILL.md` curto e acionável: o detalhe vai para `references/`, carregado sob demanda.
 - Descrições de skill dizem **quando usar e quando não usar** (é o que o agente lê para decidir).
 - Toda mudança de versão atualiza todos os manifests e o `CHANGELOG.md`.

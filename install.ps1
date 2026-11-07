@@ -1,4 +1,4 @@
-﻿# ai-delivery-kit — instalador para Windows PowerShell 5.1+ e PowerShell 7+.
+# ai-delivery-kit - instalador para Windows PowerShell 5.1+ e PowerShell 7+.
 #
 # Uso local (a partir de um clone):
 #   .\install.ps1 [-Client all|claude|agents|codex|gemini|copilot|cursor] [-Project DIR] [-Uninstall] [-Update]
@@ -8,7 +8,7 @@
 # Destinos:
 #   claude -> ~\.claude\skills  (Claude Code)
 #   agents -> ~\.agents\skills  (Codex, Gemini CLI/Antigravity, GitHub Copilot, Cursor)
-# Links globais usam junctions (não exigem administrador nem modo desenvolvedor).
+# Links globais usam junctions (nao exigem administrador nem modo desenvolvedor).
 [CmdletBinding()]
 param(
     [ValidateSet('all', 'claude', 'agents', 'codex', 'gemini', 'antigravity', 'copilot', 'cursor')]
@@ -28,13 +28,13 @@ function Resolve-KitRoot {
         return $PSScriptRoot
     }
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        throw 'git é necessário para a instalação remota'
+        throw 'git e necessario para a instalacao remota'
     }
     if (Test-Path (Join-Path $KitHome '.git')) {
         Write-Host "atualizando $KitHome"
         git -C $KitHome pull --ff-only --quiet
     } elseif (Test-Path $KitHome) {
-        throw "$KitHome existe e não é um clone do kit; defina AI_KIT_HOME para outro local"
+        throw "$KitHome existe e nao e um clone do kit; defina AI_KIT_HOME para outro local"
     } else {
         Write-Host "clonando $RepoUrl em $KitHome"
         git clone --depth 1 --quiet $RepoUrl $KitHome
@@ -76,7 +76,7 @@ function Install-Links([string]$KitRoot, [string]$Target) {
             continue
         }
         if (Test-Path -LiteralPath $link) {
-            Write-Warning "ignorado: $link já existe e não é um link deste kit"
+            Write-Warning "ignorado: $link ja existe e nao e um link deste kit"
             continue
         }
         New-Item -ItemType Junction -Path $link -Target $skill.FullName | Out-Null
@@ -86,14 +86,14 @@ function Install-Links([string]$KitRoot, [string]$Target) {
 
 function Copy-ToProject([string]$KitRoot, [string]$ProjectDir) {
     if (-not (Test-Path -LiteralPath $ProjectDir -PathType Container)) {
-        throw "diretório do projeto não encontrado: $ProjectDir"
+        throw "diretorio do projeto nao encontrado: $ProjectDir"
     }
     foreach ($base in @((Join-Path $ProjectDir '.claude\skills'), (Join-Path $ProjectDir '.agents\skills'))) {
         New-Item -ItemType Directory -Force -Path $base | Out-Null
         foreach ($skill in Get-ChildItem -Directory (Join-Path $KitRoot 'skills')) {
             $dest = Join-Path $base $skill.Name
             if ((Test-Path -LiteralPath $dest) -and -not (Test-Path -LiteralPath (Join-Path $dest $Marker))) {
-                Write-Warning "ignorado: $dest já existe e não foi criado pelo kit"
+                Write-Warning "ignorado: $dest ja existe e nao foi criado pelo kit"
                 continue
             }
             if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
@@ -124,6 +124,6 @@ if ($Project) {
 
 if (-not $Uninstall) {
     Write-Host ''
-    Write-Host 'Pronto. Abra um projeto no seu agente e peça:'
-    Write-Host '  "Prepare este repositório para o ai-delivery-kit. Não faça commit."'
+    Write-Host 'Pronto. Abra um projeto no seu agente e peca:'
+    Write-Host '  "Prepare este repositorio para o ai-delivery-kit. Nao faca commit."'
 }

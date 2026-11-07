@@ -7,7 +7,9 @@ Verifica:
 - arquivos citados como assets/, references/ ou scripts/ existem;
 - cada skill tem agents/openai.yaml (metadados de UI do Codex);
 - manifests de Claude Code, Codex e Gemini têm o mesmo nome e versão;
-- o CHANGELOG.md tem uma entrada para a versão atual.
+- o CHANGELOG.md tem uma entrada para a versão atual;
+- install.ps1 é ASCII puro, sem BOM (o `irm | iex` quebra com BOM e o PowerShell 5.1
+  lê arquivos sem BOM como ANSI).
 
 Uso: python3 scripts/validate_kit.py [raiz-do-kit]
 """
@@ -127,6 +129,14 @@ def validate(root: Path) -> List[str]:
         errors.append("nenhuma skill encontrada")
     for skill_dir in skill_dirs:
         errors.extend(check_skill(skill_dir, skills_root))
+
+    installer = root / "install.ps1"
+    if installer.exists():
+        raw = installer.read_bytes()
+        if raw.startswith(b"\xef\xbb\xbf"):
+            errors.append("install.ps1 começa com BOM: 'irm | iex' falha no Windows")
+        elif any(b > 127 for b in raw):
+            errors.append("install.ps1 tem caracteres não ASCII (use texto sem acentos)")
 
     manifest_errors, version = check_manifests(root)
     errors.extend(manifest_errors)

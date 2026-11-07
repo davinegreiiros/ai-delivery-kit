@@ -64,6 +64,18 @@ class ValidateKitTest(unittest.TestCase):
         errors = validate_kit.validate(self.root)
         self.assertTrue(any("máx. 1024" in e for e in errors))
 
+    def test_installer_with_bom_is_rejected(self):
+        path = self.root / "install.ps1"
+        path.write_bytes(b"\xef\xbb\xbf" + path.read_bytes())
+        errors = validate_kit.validate(self.root)
+        self.assertTrue(any("BOM" in e for e in errors))
+
+    def test_installer_with_accents_is_rejected(self):
+        path = self.root / "install.ps1"
+        path.write_bytes(path.read_bytes() + "# instalação\n".encode("utf-8"))
+        errors = validate_kit.validate(self.root)
+        self.assertTrue(any("ASCII" in e for e in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -150,16 +150,16 @@ jobs:
           $env:AI_KIT_REPO = $env:AI_KIT_SRC
           $script = Join-Path $env:GITHUB_WORKSPACE 'install.ps1'
           Set-Location $tmp
-          # Get-Content -Raw | iex equivale a irm <url> | iex, sem depender do cache do GitHub.
-          & $exe -NoProfile -Command "Get-Content -Raw '$script' | iex"
+          # Lê os bytes como o irm faz (sem remover BOM), sem depender do cache do GitHub.
+          & $exe -NoProfile -Command "[Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script')) | iex"
           if ($LASTEXITCODE) { throw 'irm | iex falhou' }
           if (-not (Test-Path (Join-Path $tmp '.claude\skills\kit-sdd\SKILL.md'))) { throw 'claude sem skills' }
           if (-not (Test-Path (Join-Path $tmp '.agents\skills\kit-sdd\SKILL.md'))) { throw 'agents sem skills' }
-          & $exe -NoProfile -Command "Get-Content -Raw '$script' | iex"
+          & $exe -NoProfile -Command "[Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script')) | iex"
           if ($LASTEXITCODE) { throw 'atualizar falhou' }
-          & $exe -NoProfile -Command "& ([scriptblock]::Create((Get-Content -Raw '$script'))) -Client agents"
+          & $exe -NoProfile -Command "& ([scriptblock]::Create(([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script'))))) -Client agents"
           if ($LASTEXITCODE) { throw '-Client agents falhou' }
-          & $exe -NoProfile -Command "& ([scriptblock]::Create((Get-Content -Raw '$script'))) -Uninstall"
+          & $exe -NoProfile -Command "& ([scriptblock]::Create(([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script'))))) -Uninstall"
           if ($LASTEXITCODE) { throw '-Uninstall falhou' }
           if ((Get-ChildItem (Join-Path $tmp '.claude\skills')).Count -ne 0) { throw 'uninstall deixou links' }
           if (-not (Test-Path (Join-Path $tmp '.ai-delivery-kit\skills\kit-sdd\SKILL.md'))) { throw 'uninstall apagou o clone' }
