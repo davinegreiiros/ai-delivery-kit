@@ -18,11 +18,12 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.12"]
         include:
-          - os: ubuntu-latest
+          # Versão mínima suportada (é o Python do macOS). Ubuntu 26.04 não tem build 3.9.
+          - os: ubuntu-24.04
             python: "3.9"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Validar estrutura do kit
@@ -37,7 +38,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Instalar, reinstalar e desinstalar em HOME temporário
         run: |
           export HOME="$(mktemp -d)"
@@ -62,7 +63,7 @@ jobs:
       run:
         shell: ${{ matrix.shell }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Instalar, reinstalar e desinstalar em perfil temporário
         run: |
           $ErrorActionPreference = 'Stop'

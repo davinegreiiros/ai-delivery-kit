@@ -14,13 +14,13 @@ jobs:
     # Comece informativo; troque para false quando o time confiar no gate.
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: davinegreiiros/ai-delivery-kit
           ref: v1.0.0
           path: .ai-delivery-kit
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Validar rastreabilidade das specs
