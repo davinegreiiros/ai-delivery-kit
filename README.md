@@ -36,44 +36,78 @@ Packs de stack (Flutter, Node.js/TypeScript, Python) ajudam o bootstrap a preenc
 
 ## Instalação
 
-### Rápida (todos os clientes de uma vez)
-
 Pré-requisito: **Git** instalado. Python 3.9+ só é necessário para os gates automáticos.
 
-**macOS e Linux** (Terminal; no Windows também funciona dentro do WSL):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash
-```
-
-**Windows** (PowerShell 5.1 ou 7+, sem precisar de administrador):
-
-```powershell
-irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1 | iex
-```
-
 O instalador clona o kit em `~/.ai-delivery-kit` (`%USERPROFILE%\.ai-delivery-kit` no Windows) e
-cria links (junctions no Windows) em:
+cria links para as skills em:
 
 | Destino | Lido por |
 |---|---|
 | `~/.claude/skills` | Claude Code |
 | `~/.agents/skills` | Codex, Gemini CLI/Antigravity, GitHub Copilot, Cursor |
 
-### Atualizar, escolher clientes e remover
+### macOS e Linux
 
-| Ação | macOS / Linux | Windows (PowerShell) |
-|---|---|---|
-| Atualizar | rode o comando de instalação de novo | rode o comando de instalação de novo |
-| Só Claude Code | `curl -fsSL <url>/install.sh \| bash -s -- --client claude` | `& ([scriptblock]::Create((irm <url>/install.ps1))) -Client claude` |
-| Só Codex/Gemini/Copilot/Cursor | `curl -fsSL <url>/install.sh \| bash -s -- --client agents` | `& ([scriptblock]::Create((irm <url>/install.ps1))) -Client agents` |
-| Remover | `~/.ai-delivery-kit/install.sh --uninstall` | `& ([scriptblock]::Create((irm <url>/install.ps1))) -Uninstall` |
+No Terminal (no Windows, também vale dentro do WSL).
 
-`<url>` = `https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main`. Remover só apaga
-os links que apontam para o kit; depois, se quiser, apague a pasta `.ai-delivery-kit`.
+**Instalar ou atualizar** (todos os clientes):
 
-Copilot e Cursor também leem `~/.claude/skills`; se usar só eles, instale com `agents` para não ver
-as skills duplicadas.
+```bash
+curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash
+```
+
+**Só Claude Code:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash -s -- --client claude
+```
+
+**Só Codex, Gemini, Copilot e Cursor:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash -s -- --client agents
+```
+
+**Remover:**
+
+```bash
+~/.ai-delivery-kit/install.sh --uninstall
+```
+
+### Windows
+
+No PowerShell 5.1 ou 7+, sem precisar de administrador.
+
+**Instalar ou atualizar** (todos os clientes):
+
+```powershell
+irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1 | iex
+```
+
+**Só Claude Code:**
+
+```powershell
+$kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1
+& ([scriptblock]::Create($kit)) -Client claude
+```
+
+**Só Codex, Gemini, Copilot e Cursor:**
+
+```powershell
+$kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1
+& ([scriptblock]::Create($kit)) -Client agents
+```
+
+**Remover:**
+
+```powershell
+$kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1
+& ([scriptblock]::Create($kit)) -Uninstall
+```
+
+Remover só apaga os links que apontam para o kit; depois, se quiser, apague a pasta
+`.ai-delivery-kit`. Copilot e Cursor também leem `~/.claude/skills`: se usar só eles, instale a
+opção "Codex, Gemini, Copilot e Cursor" para não ver as skills duplicadas.
 
 ### Por cliente (plugin/extensão nativos)
 
@@ -86,6 +120,8 @@ as skills duplicadas.
 
 ### No projeto (para o time inteiro, sem instalar nada)
 
+Depois de instalar, copie as skills para dentro de um projeto.
+
 macOS / Linux:
 
 ```bash
@@ -95,7 +131,8 @@ macOS / Linux:
 Windows:
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1))) -Project C:\caminho\do\projeto
+$kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1
+& ([scriptblock]::Create($kit)) -Project C:\caminho\do\projeto
 ```
 
 Copia as skills para `.claude/skills/` e `.agents/skills/` do projeto. Faça commit dessas pastas e
