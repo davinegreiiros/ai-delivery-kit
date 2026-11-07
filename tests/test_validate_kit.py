@@ -64,6 +64,13 @@ class ValidateKitTest(unittest.TestCase):
         errors = validate_kit.validate(self.root)
         self.assertTrue(any("máx. 1024" in e for e in errors))
 
+    def test_readme_status_must_match_version(self):
+        path = self.root / "README.md"
+        version = json.loads((self.root / "plugin.json").read_text(encoding="utf-8"))["version"]
+        path.write_text(path.read_text(encoding="utf-8").replace(f"versão {version}", "versão 0.0.0"), encoding="utf-8")
+        errors = validate_kit.validate(self.root)
+        self.assertTrue(any("README.md" in e for e in errors))
+
     def test_installer_with_bom_is_rejected(self):
         path = self.root / "install.ps1"
         path.write_bytes(b"\xef\xbb\xbf" + path.read_bytes())

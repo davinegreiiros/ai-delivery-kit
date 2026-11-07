@@ -1,13 +1,15 @@
 # ai-delivery-kit - instalador para Windows PowerShell 5.1+ e PowerShell 7+.
 #
 # Uso local (a partir de um clone):
-#   .\install.ps1 [-Client all|claude|agents|codex|gemini|copilot|cursor] [-Project DIR] [-Uninstall] [-Update]
+#   .\install.ps1 [-Client all|claude|agents|antigravity] [-Project DIR] [-Uninstall] [-Update]
+#   (aliases de agents: codex, gemini, copilot, cursor)
 # Uso remoto (clona em ~\.ai-delivery-kit e instala para todos os clientes):
 #   irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1 | iex
 #
 # Destinos:
-#   claude -> ~\.claude\skills  (Claude Code)
-#   agents -> ~\.agents\skills  (Codex, Gemini CLI/Antigravity, GitHub Copilot, Cursor)
+#   claude      -> ~\.claude\skills         (Claude Code)
+#   agents      -> ~\.agents\skills         (Codex, Gemini CLI, GitHub Copilot, Cursor)
+#   antigravity -> ~\.gemini\config\skills  (Antigravity app e CLI)
 # Links globais usam junctions (nao exigem administrador nem modo desenvolvedor).
 [CmdletBinding()]
 param(
@@ -115,8 +117,9 @@ if ($Project) {
     Copy-ToProject $KitRoot $Project
 } else {
     $targets = switch ($Client) {
-        'all' { @((Join-Path $HOME '.claude\skills'), (Join-Path $HOME '.agents\skills')) }
+        'all' { @((Join-Path $HOME '.claude\skills'), (Join-Path $HOME '.agents\skills'), (Join-Path $HOME '.gemini\config\skills')) }
         'claude' { @((Join-Path $HOME '.claude\skills')) }
+        'antigravity' { @((Join-Path $HOME '.gemini\config\skills')) }
         default { @((Join-Path $HOME '.agents\skills')) }
     }
     foreach ($t in $targets) { Install-Links $KitRoot $t }

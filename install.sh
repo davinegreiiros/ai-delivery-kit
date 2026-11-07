@@ -2,14 +2,16 @@
 # ai-delivery-kit — instalador para macOS/Linux (bash 3.2+).
 #
 # Uso local (a partir de um clone):
-#   ./install.sh [--client all|claude|agents|codex|gemini|copilot|cursor] [--project DIR] [--uninstall]
+#   ./install.sh [--client all|claude|agents|antigravity] [--project DIR] [--uninstall] [--update]
+#   (aliases de agents: codex, gemini, copilot, cursor)
 # Uso remoto (clona em ~/.ai-delivery-kit e instala):
 #   curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash
 #   curl -fsSL .../install.sh | bash -s -- --client claude
 #
 # Destinos:
-#   claude  -> ~/.claude/skills   (Claude Code)
-#   agents  -> ~/.agents/skills   (Codex, Gemini CLI/Antigravity, GitHub Copilot, Cursor)
+#   claude      -> ~/.claude/skills         (Claude Code)
+#   agents      -> ~/.agents/skills         (Codex, Gemini CLI, GitHub Copilot, Cursor)
+#   antigravity -> ~/.gemini/config/skills  (Antigravity app e CLI)
 #   --project DIR copia as skills para DIR/.claude/skills e DIR/.agents/skills (para versionar no projeto).
 set -euo pipefail
 
@@ -63,9 +65,10 @@ fi
 
 # 2. Resolver destinos.
 case "$CLIENT" in
-  all) targets=("$HOME/.claude/skills" "$HOME/.agents/skills") ;;
+  all) targets=("$HOME/.claude/skills" "$HOME/.agents/skills" "$HOME/.gemini/config/skills") ;;
   claude) targets=("$HOME/.claude/skills") ;;
-  agents|codex|gemini|antigravity|copilot|cursor) targets=("$HOME/.agents/skills") ;;
+  agents|codex|gemini|copilot|cursor) targets=("$HOME/.agents/skills") ;;
+  antigravity) targets=("$HOME/.gemini/config/skills") ;;
   *) die "cliente inválido: $CLIENT" ;;
 esac
 

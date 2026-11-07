@@ -3,6 +3,21 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); versões seguem
 [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.1] - 2026-11-07
+
+### Corrigido
+- `install.ps1`: o BOM UTF-8 quebrava `irm | iex` ("Unexpected attribute 'CmdletBinding'");
+  o script agora é ASCII puro e o `validate_kit.py` impede a regressão.
+- Antigravity (app e CLI) não lia `~/.agents/skills`: os instaladores agora também criam links em
+  `~/.gemini/config/skills` (`--client antigravity`; incluído em `all`).
+- Marketplace do Codex usa a origem `url` documentada para plugin na raiz do repositório.
+- CI: Python 3.9 testado no Ubuntu 24.04 (o 26.04 não tem build 3.9); actions atualizadas para v7.
+
+### Alterado
+- README: comandos completos e copiáveis por sistema (macOS/Linux e Windows), status da versão,
+  resultado esperado, desenvolvimento local e princípios de adoção.
+- CI executa os comandos do README como estão escritos, inclusive pelas URLs reais.
+
 ## [1.0.0] - 2026-11-07
 
 ### Adicionado

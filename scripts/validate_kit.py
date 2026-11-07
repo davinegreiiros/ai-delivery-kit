@@ -7,7 +7,7 @@ Verifica:
 - arquivos citados como assets/, references/ ou scripts/ existem;
 - cada skill tem agents/openai.yaml (metadados de UI do Codex);
 - manifests de Claude Code, Codex e Gemini têm o mesmo nome e versão;
-- o CHANGELOG.md tem uma entrada para a versão atual;
+- o CHANGELOG.md tem uma entrada e o README.md mostra a versão atual;
 - install.ps1 é ASCII puro, sem BOM (o `irm | iex` quebra com BOM e o PowerShell 5.1
   lê arquivos sem BOM como ANSI).
 
@@ -140,6 +140,9 @@ def validate(root: Path) -> List[str]:
 
     manifest_errors, version = check_manifests(root)
     errors.extend(manifest_errors)
+    readme = root / "README.md"
+    if version and readme.exists() and f"versão {version}" not in readme.read_text(encoding="utf-8"):
+        errors.append(f"README.md sem a linha de status 'versão {version}'")
     changelog = root / "CHANGELOG.md"
     if version and changelog.exists():
         if f"[{version}]" not in changelog.read_text(encoding="utf-8"):

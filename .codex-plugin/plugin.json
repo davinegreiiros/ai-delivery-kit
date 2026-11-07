@@ -1,6 +1,6 @@
 {
   "name": "ai-delivery-kit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Spec-Driven Development com agentes de IA: spec, impacto, plano, testes, debugging, segurança e revisão.",
   "author": {
     "name": "Davi Negreiros"

@@ -11,7 +11,7 @@
       "name": "ai-delivery-kit",
       "source": "./",
       "description": "Spec-Driven Development com agentes de IA",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "productivity",
       "tags": ["sdd", "specs", "code-review", "debugging", "security"]
     }

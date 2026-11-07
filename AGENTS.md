@@ -23,5 +23,6 @@ Este repositório **é** o kit (skills no padrão Agent Skills), não um projeto
   lê acentos errado. O `validate_kit.py` verifica isso.
 - `SKILL.md` curto e acionável: o detalhe vai para `references/`, carregado sob demanda.
 - Descrições de skill dizem **quando usar e quando não usar** (é o que o agente lê para decidir).
-- Toda mudança de versão atualiza todos os manifests e o `CHANGELOG.md`.
+- Toda mudança de versão atualiza todos os manifests, a linha de status do `README.md`, o
+  `CHANGELOG.md` e o `ref:` em `skills/kit-project-bootstrap/assets/github-workflow.yml`.
 - Não faça commit, push ou tag sem pedido explícito.

@@ -3,18 +3,29 @@
 [![ci](https://github.com/davinegreiiros/ai-delivery-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/davinegreiiros/ai-delivery-kit/actions/workflows/ci.yml)
 [![licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
 
+> **Status:** versão 1.0.1 · licença MIT · Claude Code, Codex, Gemini CLI, Antigravity, GitHub Copilot e Cursor
+
 Kit de **Spec-Driven Development (SDD)** para agentes de código. Ensina o agente a especificar,
 mapear impacto, planejar, testar, depurar, revisar e documentar **antes** de declarar uma tarefa
 pronta — com gates humanos nos pontos de decisão e gates automáticos onde dá para medir.
 
-Funciona com **Claude Code, OpenAI Codex, Gemini CLI/Antigravity, GitHub Copilot e Cursor**: as
-skills seguem o padrão aberto [Agent Skills](https://agentskills.io) (`SKILL.md`), e cada cliente
-recebe seu manifest.
+As skills seguem o padrão aberto [Agent Skills](https://agentskills.io) (`SKILL.md`), então as
+mesmas instruções funcionam em todos os clientes; muda só onde cada um procura as skills.
 
 ```
 pedido ─► spec.md ─(aprovação)─► impact.md ─► plan.md + tasks.md ─(aprovação se risco)─►
           baseline de testes ─► código + testes ─► test guard final ─► check_specs ─► review
 ```
+
+## Resultado esperado
+
+Depois de adotar o kit, cada repositório tem:
+
+- `AGENTS.md` — contrato curto para humanos e agentes (com `CLAUDE.md` e `GEMINI.md` apontando para ele);
+- `.kit/constitution.md` — regras inegociáveis do projeto;
+- `docs/` — o sistema como ele é hoje, com decisões em `docs/adr/`;
+- `specs/<ID>/` — spec, impacto, plano, tarefas e evidências de cada mudança;
+- código, testes e documentação atualizados no mesmo PR.
 
 ## Skills
 
@@ -36,15 +47,18 @@ Packs de stack (Flutter, Node.js/TypeScript, Python) ajudam o bootstrap a preenc
 
 ## Instalação
 
-Pré-requisito: **Git** instalado. Python 3.9+ só é necessário para os gates automáticos.
+Pré-requisito: **Git**. Python 3.9+ só é necessário para os gates automáticos.
 
 O instalador clona o kit em `~/.ai-delivery-kit` (`%USERPROFILE%\.ai-delivery-kit` no Windows) e
 cria links para as skills em:
 
-| Destino | Lido por |
-|---|---|
-| `~/.claude/skills` | Claude Code |
-| `~/.agents/skills` | Codex, Gemini CLI/Antigravity, GitHub Copilot, Cursor |
+| Cliente (`--client`) | Destino | Lido por |
+|---|---|---|
+| `claude` | `~/.claude/skills` | Claude Code |
+| `agents` | `~/.agents/skills` | Codex, Gemini CLI, GitHub Copilot, Cursor |
+| `antigravity` | `~/.gemini/config/skills` | Antigravity (app e CLI) |
+
+Sem `--client`, instala para todos (`all`).
 
 ### macOS e Linux
 
@@ -56,16 +70,10 @@ No Terminal (no Windows, também vale dentro do WSL).
 curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash
 ```
 
-**Só Claude Code:**
+**Só um cliente** — troque `claude` por `agents` ou `antigravity`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash -s -- --client claude
-```
-
-**Só Codex, Gemini, Copilot e Cursor:**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.sh | bash -s -- --client agents
 ```
 
 **Remover:**
@@ -84,18 +92,11 @@ No PowerShell 5.1 ou 7+, sem precisar de administrador.
 irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1 | iex
 ```
 
-**Só Claude Code:**
+**Só um cliente** — troque `claude` por `agents` ou `antigravity`:
 
 ```powershell
 $kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1
 & ([scriptblock]::Create($kit)) -Client claude
-```
-
-**Só Codex, Gemini, Copilot e Cursor:**
-
-```powershell
-$kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main/install.ps1
-& ([scriptblock]::Create($kit)) -Client agents
 ```
 
 **Remover:**
@@ -105,22 +106,29 @@ $kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main
 & ([scriptblock]::Create($kit)) -Uninstall
 ```
 
-Remover só apaga os links que apontam para o kit; depois, se quiser, apague a pasta
-`.ai-delivery-kit`. Copilot e Cursor também leem `~/.claude/skills`: se usar só eles, instale a
-opção "Codex, Gemini, Copilot e Cursor" para não ver as skills duplicadas.
+### Observações
 
-### Por cliente (plugin/extensão nativos)
+- **Atualizar** = rodar de novo **o mesmo** comando usado na instalação (o padrão instala para todos).
+- **Remover** só apaga os links que apontam para o kit; depois, se quiser, apague a pasta `.ai-delivery-kit`.
+- Copilot e Cursor também leem `~/.claude/skills`. Se usar só eles, instale com `agents` para não
+  ver as skills duplicadas.
 
-| Cliente | Comando |
+### Alternativa: plugin nativo do cliente
+
+Use **ou** o instalador **ou** o plugin no mesmo cliente — os dois juntos duplicam as skills.
+
+| Cliente | Como instalar |
 |---|---|
 | Claude Code | `/plugin marketplace add davinegreiiros/ai-delivery-kit` e depois `/plugin install ai-delivery-kit@ai-delivery-kit` |
-| Codex | `codex plugin marketplace add davinegreiiros/ai-delivery-kit` e instale pelo app/`/plugins` |
+| Codex | `codex plugin marketplace add davinegreiiros/ai-delivery-kit`; depois abra o `codex`, digite `/plugins` e instale |
 | Gemini CLI | `gemini extensions install https://github.com/davinegreiiros/ai-delivery-kit` |
-| GitHub Copilot / Cursor | instalador acima (`--client agents`), ou copie para o projeto (abaixo) |
+| Antigravity, Copilot, Cursor | use o instalador acima |
 
-### No projeto (para o time inteiro, sem instalar nada)
+### No projeto (para o time inteiro)
 
-Depois de instalar, copie as skills para dentro de um projeto.
+Depois de instalar, copie as skills para dentro de um projeto e faça commit delas: quem clonar o
+repositório já terá as skills em todos os clientes, sem instalar nada. As cópias vão para
+`.claude/skills/` (Claude Code) e `.agents/skills/` (demais clientes, incluindo o Antigravity).
 
 macOS / Linux:
 
@@ -135,28 +143,40 @@ $kit = irm https://raw.githubusercontent.com/davinegreiiros/ai-delivery-kit/main
 & ([scriptblock]::Create($kit)) -Project C:\caminho\do\projeto
 ```
 
-Copia as skills para `.claude/skills/` e `.agents/skills/` do projeto. Faça commit dessas pastas e
-qualquer pessoa que clonar o repositório já terá as skills em todos os clientes.
+### Desenvolvimento local do kit
+
+Para editar as skills e ver o efeito na hora, instale a partir de um clone: os links passam a
+apontar para ele. Se já tiver instalado pelo comando remoto, remova antes (`--uninstall`).
+
+```bash
+git clone https://github.com/davinegreiiros/ai-delivery-kit.git
+cd ai-delivery-kit
+./install.sh
+```
+
+No Windows, dentro do clone: `powershell -ExecutionPolicy Bypass -File .\install.ps1`.
 
 ## Uso
 
 1. Abra o projeto no seu agente e peça:
+
    > Prepare este repositório para o ai-delivery-kit. Não faça commit.
 
-   Ele cria `AGENTS.md` (lido por Codex, Copilot e Cursor), `CLAUDE.md` e `GEMINI.md` (que importam o
-   `AGENTS.md`), `.kit/constitution.md`, `.kit/quality.json`, `docs/` e `specs/`.
+   Ele cria `AGENTS.md` (lido por Codex, Copilot e Cursor), `CLAUDE.md` e `GEMINI.md` (que
+   importam o `AGENTS.md`), `.kit/constitution.md`, `.kit/quality.json`, `docs/` e `specs/`.
 2. Revise a constituição e os comandos detectados.
-3. Peça mudanças normalmente — o agente segue o fluxo sozinho:
-   > Implemente o issue #42.
-   > O login está falhando no Android, investigue.
-   > Adicione filtro por data na listagem de pedidos.
+3. Peça mudanças normalmente — o agente segue o fluxo sozinho. Exemplos:
+   - "Implemente o issue #42."
+   - "O login está falhando no Android, investigue."
+   - "Adicione filtro por data na listagem de pedidos."
 
 Mudanças triviais usam o **modo rápido** (só `tasks.md`), sem burocracia.
 
 ### Gates automáticos
 
-O agente roda estes scripts sozinho; os comandos abaixo servem para rodar à mão ou no CI.
-No Windows, troque `python3` por `python` (ou `py`) e `~/` por `$HOME\`.
+O agente roda estes scripts sozinho; os comandos abaixo servem para rodar à mão ou no CI. Os
+caminhos valem para a instalação pelo instalador; com plugin nativo, os scripts ficam na pasta de
+plugins do cliente. No Windows, troque `python3` por `python` (ou `py`) e `~/` por `$HOME\`.
 
 ```bash
 # rastreabilidade: spec aprovada, CA-n com teste no plano e evidência no fim
@@ -169,6 +189,14 @@ python3 ~/.ai-delivery-kit/skills/kit-test-guard/scripts/test_guard.py final --i
 
 No GitHub, o bootstrap oferece o workflow `kit-specs`, que roda o `check_specs` em cada PR —
 começa informativo e pode virar bloqueante.
+
+## Princípios de adoção
+
+1. **Comece informativo.** Torne um gate bloqueante só depois de ver que ele não gera falsos positivos.
+2. **Preserve o que existe.** Documentação correta é auditada e completada, não reescrita.
+3. **Código, spec e docs no mesmo PR** quando o comportamento muda.
+4. **Proporcional ao risco.** Mudança trivial usa o modo rápido; risco alto exige plano aprovado.
+5. **Evidência acima de opinião.** Achados e docs citam arquivo e símbolo, não só número de linha.
 
 ## Estrutura do repositório
 

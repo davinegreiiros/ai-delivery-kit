@@ -46,12 +46,14 @@ jobs:
           ./install.sh --client all
           test "$(ls "$HOME/.claude/skills" | wc -l)" -eq "$(ls skills | wc -l)"
           test -L "$HOME/.agents/skills/kit-sdd"
+          test -L "$HOME/.gemini/config/skills/kit-sdd"
           mkdir "$HOME/proj"
           ./install.sh --project "$HOME/proj"
           test -f "$HOME/proj/.agents/skills/kit-sdd/SKILL.md"
           ./install.sh --project "$HOME/proj" --uninstall
           ./install.sh --uninstall
           test -z "$(ls "$HOME/.claude/skills")"
+          test -z "$(ls "$HOME/.gemini/config/skills")"
 
   install-windows:
     name: instalador PowerShell (${{ matrix.shell }})
@@ -79,11 +81,13 @@ jobs:
           $got = (Get-ChildItem (Join-Path $tmp '.claude\skills')).Count
           if ($got -ne $expected) { throw "esperado $expected links, obtido $got" }
           if (-not (Test-Path (Join-Path $tmp '.agents\skills\kit-sdd\SKILL.md'))) { throw 'junction quebrada' }
+          if (-not (Test-Path (Join-Path $tmp '.gemini\config\skills\kit-sdd\SKILL.md'))) { throw 'antigravity sem skills' }
           $proj = Join-Path $tmp 'proj'; New-Item -ItemType Directory -Path $proj | Out-Null
           & $exe -NoProfile -File .\install.ps1 -Project $proj
           if (-not (Test-Path (Join-Path $proj '.agents\skills\kit-sdd\SKILL.md'))) { throw 'cópia falhou' }
           & $exe -NoProfile -File .\install.ps1 -Uninstall
           if ((Get-ChildItem (Join-Path $tmp '.claude\skills')).Count -ne 0) { throw 'uninstall falhou' }
+          if ((Get-ChildItem (Join-Path $tmp '.gemini\config\skills')).Count -ne 0) { throw 'uninstall deixou antigravity' }
           if (-not (Test-Path (Join-Path (Get-Location) 'skills\kit-sdd\SKILL.md'))) { throw 'uninstall apagou a origem' }
 
   # Roda os comandos exatamente como estão no README (modo remoto: clona em ~/.ai-delivery-kit).
@@ -109,10 +113,14 @@ jobs:
           test "$(readlink "$HOME/.claude/skills/kit-sdd")" = "$HOME/.ai-delivery-kit/skills/kit-sdd"
           test -f "$HOME/.agents/skills/kit-sdd/SKILL.md"
           cat "$GITHUB_WORKSPACE/install.sh" | bash
+          test -f "$HOME/.gemini/config/skills/kit-sdd/SKILL.md"
+          cat "$GITHUB_WORKSPACE/install.sh" | bash -s -- --client claude
           cat "$GITHUB_WORKSPACE/install.sh" | bash -s -- --client agents
+          cat "$GITHUB_WORKSPACE/install.sh" | bash -s -- --client antigravity
           "$HOME/.ai-delivery-kit/install.sh" --uninstall
           test -z "$(ls "$HOME/.claude/skills")"
           test -z "$(ls "$HOME/.agents/skills")"
+          test -z "$(ls "$HOME/.gemini/config/skills")"
       - name: Comando real do README pela internet
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -159,9 +167,13 @@ jobs:
           if ($LASTEXITCODE) { throw 'atualizar falhou' }
           & $exe -NoProfile -Command "& ([scriptblock]::Create(([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script'))))) -Client agents"
           if ($LASTEXITCODE) { throw '-Client agents falhou' }
+          & $exe -NoProfile -Command "& ([scriptblock]::Create(([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script'))))) -Client antigravity"
+          if ($LASTEXITCODE) { throw '-Client antigravity falhou' }
+          if (-not (Test-Path (Join-Path $tmp '.gemini\config\skills\kit-sdd\SKILL.md'))) { throw 'antigravity sem skills' }
           & $exe -NoProfile -Command "& ([scriptblock]::Create(([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes('$script'))))) -Uninstall"
           if ($LASTEXITCODE) { throw '-Uninstall falhou' }
           if ((Get-ChildItem (Join-Path $tmp '.claude\skills')).Count -ne 0) { throw 'uninstall deixou links' }
+          if ((Get-ChildItem (Join-Path $tmp '.gemini\config\skills')).Count -ne 0) { throw 'uninstall deixou antigravity' }
           if (-not (Test-Path (Join-Path $tmp '.ai-delivery-kit\skills\kit-sdd\SKILL.md'))) { throw 'uninstall apagou o clone' }
       - name: Comando real do README pela internet
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

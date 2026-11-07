@@ -3,7 +3,10 @@
   "plugins": [
     {
       "name": "ai-delivery-kit",
-      "source": { "source": "local", "path": "./" },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/davinegreiiros/ai-delivery-kit.git"
+      },
       "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
       "category": "Productivity"
     }
